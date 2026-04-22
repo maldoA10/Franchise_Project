@@ -16,17 +16,18 @@ public class BranchUseCaseImpl implements BranchUseCase {
     @Override
     public Mono<Branch> updateBranchName(String franchiseId, String branchId, String newName) {
         return franchiseRepository.findById(franchiseId)
-                .switchIfEmpty(Mono.error(
-                        new RuntimeException("Franchise not found: " + franchiseId)))
-                .flatMap(franchise -> {
-                    Branch branch = franchise.getBranches().stream()
-                            .filter(b -> b.getId().equals(branchId))
-                            .findFirst()
-                            .orElseThrow(() -> new RuntimeException(
-                                    "Branch not found: " + branchId));
-                    branch.setName(newName);
-                    return franchiseRepository.save(franchise)
-                            .thenReturn(branch);
-                });
+            .switchIfEmpty(Mono.error(
+                new RuntimeException("Franchise not found: " + franchiseId)))
+            .flatMap(franchise -> {
+                Branch branch = franchise.getBranches().stream()
+                    .filter(b -> b.getId().equals(branchId))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException(
+                        "Branch not found: " + branchId));
+                branch.setName(newName);
+                return franchiseRepository.save(franchise)
+                    .thenReturn(branch);
+            }
+        );
     }
 }

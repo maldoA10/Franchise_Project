@@ -20,10 +20,7 @@ import java.util.Map;
 @Order(-2)
 public class ExceptionHandler extends AbstractErrorWebExceptionHandler {
 
-    public ExceptionHandler(ErrorAttributes errorAttributes,
-            WebProperties webProperties,
-            ApplicationContext applicationContext,
-            ServerCodecConfigurer configurer) {
+    public ExceptionHandler(ErrorAttributes errorAttributes, WebProperties webProperties, ApplicationContext applicationContext, ServerCodecConfigurer configurer) {
         super(errorAttributes, webProperties.getResources(), applicationContext);
         this.setMessageWriters(configurer.getWriters());
         this.setMessageReaders(configurer.getReaders());
@@ -36,7 +33,7 @@ public class ExceptionHandler extends AbstractErrorWebExceptionHandler {
 
     private Mono<ServerResponse> renderErrorResponse(ServerRequest request) {
         Map<String, Object> errorAttributes = getErrorAttributes(
-                request, ErrorAttributeOptions.defaults());
+            request, ErrorAttributeOptions.defaults());
 
         Throwable error = getError(request);
         HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
@@ -55,7 +52,7 @@ public class ExceptionHandler extends AbstractErrorWebExceptionHandler {
         errorAttributes.put("message", error.getMessage() != null ? error.getMessage() : "Unexpected error");
 
         return ServerResponse.status(status)
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(errorAttributes));
+            .contentType(MediaType.APPLICATION_JSON)
+            .body(BodyInserters.fromValue(errorAttributes));
     }
 }

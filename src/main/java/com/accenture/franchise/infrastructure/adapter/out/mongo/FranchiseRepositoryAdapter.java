@@ -18,14 +18,14 @@ public class FranchiseRepositoryAdapter implements FranchiseRepository {
     @Override
     public Mono<Franchise> save(Franchise franchise) {
         return mongoRepository
-                .save(mapper.toDocument(franchise))
-                .map(mapper::toDomain);
+            .save(mapper.toDocument(franchise))
+            .map(mapper::toDomain);
     }
 
     @Override
     public Mono<Franchise> findById(String id) {
         return mongoRepository
-                .findById(id)
-                .map(mapper::toDomain);
+            .findById(id)
+            .map(mapper::toDomain);
     }
 }

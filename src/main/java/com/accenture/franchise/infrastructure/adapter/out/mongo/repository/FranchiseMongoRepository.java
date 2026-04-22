@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface FranchiseMongoRepository
-        extends ReactiveMongoRepository<FranchiseDocument, String> {
+    extends ReactiveMongoRepository<FranchiseDocument, String> {
 }
