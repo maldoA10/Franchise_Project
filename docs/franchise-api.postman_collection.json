@@ -1,0 +1,387 @@
+{
+  "info": {
+    "_postman_id": "12b4ad32-a7cb-4283-85e5-323d0eb6a107",
+    "name": "API Franquicias - Test",
+    "description": "Colección para probar el flujo de Franquicias, Sucursales y Productos.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "29849393"
+  },
+  "item": [
+    {
+      "name": "1. Crear franquicia",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "if (jsonData.id) {",
+              "    pm.collectionVariables.set(\"franchiseId\", jsonData.id);",
+              "    console.log('ID de Franquicia guardado:', jsonData.id);",
+              "}"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Franquicia Test\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/franchises",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "franchises"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2. Agregar sucursal",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();",
+              "",
+              "if (jsonData.branches && jsonData.branches.length > 0) {",
+              "    var ultimoIndice = jsonData.branches.length - 1;",
+              "    var branchId = jsonData.branches[ultimoIndice].id;",
+              "    ",
+              "    pm.collectionVariables.set(\"branchId\", branchId);",
+              "    ",
+              "    console.log('ID de la nueva sucursal guardado:', branchId);",
+              "} else {",
+              "    console.log('No se encontraron sucursales en la respuesta.');",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Sucursal Norte\"\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/franchises/{{franchiseId}}/branches",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "franchises",
+            "{{franchiseId}}",
+            "branches"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3. Agregar producto",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "var jsonData = pm.response.json();\r",
+              "if (jsonData.id) {\r",
+              "    pm.collectionVariables.set(\"productId\", jsonData.id);\r",
+              "    console.log('ID de Producto guardado:', jsonData.id);\r",
+              "}"
+            ],
+            "type": "text/javascript",
+            "packages": {},
+            "requests": {}
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n    \"name\": \"Producto A\",\n    \"stock\": 100\n}"
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/franchises/{{franchiseId}}/branches/{{branchId}}/products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "franchises",
+            "{{franchiseId}}",
+            "branches",
+            "{{branchId}}",
+            "products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "4. Top producto por sucursal",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/franchises/{{franchiseId}}/top-products",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "franchises",
+            "{{franchiseId}}",
+            "top-products"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "1.1 Editar nombre de franquicia",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Franquicia Test\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/franchises/{{franchiseId}}/name",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "franchises",
+            "{{franchiseId}}",
+            "name"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "2.1 Editar nombre de sucursal",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Sucursal Norte\"\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/franchises/{{franchiseId}}/branches/{{branchId}}/name",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "franchises",
+            "{{franchiseId}}",
+            "branches",
+            "{{branchId}}",
+            "name"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3.1 Eliminar producto",
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/api/franchises/{{franchiseId}}/branches/{{branchId}}/products/{{productId}}",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "franchises",
+            "{{franchiseId}}",
+            "branches",
+            "{{branchId}}",
+            "products",
+            "{{productId}}"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3.2 Editar nombre de producto",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    \"name\": \"Producto A\"\r\n    //\"stock\": 100\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/franchises/{{franchiseId}}/branches/{{branchId}}/products/{{productId}}/name",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "franchises",
+            "{{franchiseId}}",
+            "branches",
+            "{{branchId}}",
+            "products",
+            "{{productId}}",
+            "name"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "3.3 Editar stock de producto",
+      "request": {
+        "method": "PATCH",
+        "header": [],
+        "body": {
+          "mode": "raw",
+          "raw": "{\r\n    //\"name\": \"Producto A\"\r\n    \"stock\": 100\r\n}",
+          "options": {
+            "raw": {
+              "language": "json"
+            }
+          }
+        },
+        "url": {
+          "raw": "{{baseUrl}}/api/franchises/{{franchiseId}}/branches/{{branchId}}/products/{{productId}}/stock",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "api",
+            "franchises",
+            "{{franchiseId}}",
+            "branches",
+            "{{branchId}}",
+            "products",
+            "{{productId}}",
+            "stock"
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/actuator/health",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            "actuator",
+            "health"
+          ]
+        }
+      },
+      "response": []
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "packages": {},
+        "requests": {},
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080"
+    },
+    {
+      "key": "franchiseId",
+      "value": ""
+    },
+    {
+      "key": "branchId",
+      "value": ""
+    },
+    {
+      "key": "productId",
+      "value": ""
+    },
+    {
+      "key": "productid",
+      "value": ""
+    }
+  ]
+}
