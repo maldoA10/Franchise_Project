@@ -12,6 +12,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -30,49 +31,56 @@ public class FranchiseUseCaseImpl implements FranchiseUseCase {
     @Override
     public Mono<Franchise> updateFranchiseName(String franchiseId, String newName) {
         return franchiseRepository.findById(franchiseId)
-                .switchIfEmpty(Mono.error(
-                        new RuntimeException("Franchise not found: " + franchiseId)))
-                .flatMap(franchise -> {
-                    franchise.setName(newName);
-                    return franchiseRepository.save(franchise);
-                });
+            .switchIfEmpty(Mono.error(
+                new RuntimeException("Franchise not found: " + franchiseId)))
+            .flatMap(franchise -> {
+                franchise.setName(newName);
+                return franchiseRepository.save(franchise);
+            }
+        );
     }
 
     @Override
     public Mono<Franchise> addBranchToFranchise(String franchiseId, String branchName) {
         return franchiseRepository.findById(franchiseId)
-                .switchIfEmpty(Mono.error(
-                        new RuntimeException("Franchise not found: " + franchiseId)))
-                .flatMap(franchise -> {
-                    Branch newBranch = Branch.builder()
-                            .id(UUID.randomUUID().toString())
-                            .name(branchName)
-                            .products(new ArrayList<>())
-                            .build();
-                    franchise.getBranches().add(newBranch);
-                    return franchiseRepository.save(franchise);
-                });
+            .switchIfEmpty(Mono.error(
+                new RuntimeException("Franchise not found: " + franchiseId)))
+            .flatMap(franchise -> {
+                Branch newBranch = Branch.builder()
+                    .id(UUID.randomUUID().toString())
+                    .name(branchName)
+                    .products(new ArrayList<>())
+                    .build();
+
+                List<Branch> branches = franchise.getBranches() == null ? new ArrayList<>() : new ArrayList<>(franchise.getBranches());
+                branches.add(newBranch);
+                franchise.setBranches(branches);
+
+                return franchiseRepository.save(franchise);
+            }
+        );
     }
 
     @Override
     public Flux<TopProductByBranch> getTopProductPerBranch(String franchiseId) {
         return franchiseRepository.findById(franchiseId)
-                .switchIfEmpty(Mono.error(
-                        new RuntimeException("Franchise not found: " + franchiseId)))
-                .flatMapMany(franchise -> Flux.fromIterable(franchise.getBranches()))
-                .flatMap(branch -> {
-                    if (branch.getProducts().isEmpty()) {
-                        return Flux.empty();
-                    }
-                    return branch.getProducts().stream()
-                            .max(Comparator.comparingInt(p -> p.getStock()))
-                            .map(topProduct -> Flux.just(
-                                    TopProductByBranch.builder()
-                                            .branchId(branch.getId())
-                                            .branchName(branch.getName())
-                                            .product(topProduct)
-                                            .build()))
+            .switchIfEmpty(Mono.error(
+                new RuntimeException("Franchise not found: " + franchiseId)))
+            .flatMapMany(franchise -> Flux.fromIterable(franchise.getBranches()))
+            .flatMap(branch -> {
+                if (branch.getProducts().isEmpty()) {
+                    return Flux.empty();
+                }
+                return branch.getProducts().stream()
+                    .max(Comparator.comparingInt(p -> p.getStock()))
+                    .map(topProduct -> Flux.just(
+                        TopProductByBranch.builder()
+                            .branchId(branch.getId())
+                            .branchName(branch.getName())
+                            .product(topProduct)
+                            .build()))
                             .orElse(Flux.empty());
-                });
+            }
+        );
     }
 }

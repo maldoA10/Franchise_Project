@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Service
@@ -19,96 +20,107 @@ public class ProductUseCaseImpl implements ProductUseCase {
     @Override
     public Mono<Product> addProductToBranch(String franchiseId, String branchId, Product product) {
         return franchiseRepository.findById(franchiseId)
-                .switchIfEmpty(Mono.error(
-                        new RuntimeException("Franchise not found: " + franchiseId)))
-                .flatMap(franchise -> {
-                    Branch branch = findBranch(franchise.getBranches()
-                            .stream()
-                            .filter(b -> b.getId().equals(branchId))
-                            .findFirst(), branchId);
+            .switchIfEmpty(Mono.error(
+                new RuntimeException("Franchise not found: " + franchiseId)))
+            .flatMap(franchise -> {
+                Branch branch = findBranch(franchise.getBranches()
+                    .stream()
+                    .filter(b -> b.getId().equals(branchId))
+                    .findFirst(), branchId);
 
-                    product.setId(UUID.randomUUID().toString());
-                    branch.getProducts().add(product);
+                if (branch.getProducts() == null) {
+                    branch.setProducts(new ArrayList<>());
+                } else {
+                    branch.setProducts(new ArrayList<>(branch.getProducts()));
+                }
 
-                    return franchiseRepository.save(franchise)
-                            .thenReturn(product);
-                });
+                product.setId(UUID.randomUUID().toString());
+                branch.getProducts().add(product);
+
+                return franchiseRepository.save(franchise)
+                    .thenReturn(product);
+            }
+        );
     }
 
     @Override
-    public Mono<Void> deleteProductFromBranch(String franchiseId, String branchId,
-                                               String productId) {
+    public Mono<Void> deleteProductFromBranch(String franchiseId, String branchId, String productId) {
         return franchiseRepository.findById(franchiseId)
-                .switchIfEmpty(Mono.error(
-                        new RuntimeException("Franchise not found: " + franchiseId)))
-                .flatMap(franchise -> {
-                    Branch branch = findBranch(franchise.getBranches()
-                            .stream()
-                            .filter(b -> b.getId().equals(branchId))
-                            .findFirst(), branchId);
+            .switchIfEmpty(Mono.error(
+                new RuntimeException("Franchise not found: " + franchiseId)))
+            .flatMap(franchise -> {
+                Branch branch = findBranch(franchise.getBranches()
+                    .stream()
+                    .filter(b -> b.getId().equals(branchId))
+                    .findFirst(), branchId);
 
-                    boolean removed = branch.getProducts()
-                            .removeIf(p -> p.getId().equals(productId));
+                if(branch.getProducts() != null) {
+                    branch.setProducts(new ArrayList<>(branch.getProducts()));
+                } else {
+                    return Mono.error(new RuntimeException("Product list is null"));
+                }
 
-                    if (!removed) {
-                        return Mono.error(
-                                new RuntimeException("Product not found: " + productId));
-                    }
+                boolean removed = branch.getProducts()
+                    .removeIf(p -> p.getId().equals(productId));
 
-                    return franchiseRepository.save(franchise).then();
-                });
+                if (!removed) {
+                    return Mono.error(
+                            new RuntimeException("Product not found: " + productId));
+                }
+
+                return franchiseRepository.save(franchise).then();
+            }
+        );
     }
 
     @Override
-    public Mono<Product> updateProductStock(String franchiseId, String branchId,
-                                            String productId, int newStock) {
+    public Mono<Product> updateProductStock(String franchiseId, String branchId, String productId, int newStock) {
         return franchiseRepository.findById(franchiseId)
-                .switchIfEmpty(Mono.error(
-                        new RuntimeException("Franchise not found: " + franchiseId)))
-                .flatMap(franchise -> {
-                    Branch branch = findBranch(franchise.getBranches()
-                            .stream()
-                            .filter(b -> b.getId().equals(branchId))
-                            .findFirst(), branchId);
+            .switchIfEmpty(Mono.error(
+                new RuntimeException("Franchise not found: " + franchiseId)))
+            .flatMap(franchise -> {
+                Branch branch = findBranch(franchise.getBranches()
+                    .stream()
+                    .filter(b -> b.getId().equals(branchId))
+                    .findFirst(), branchId);
 
-                    Product product = findProduct(branch, productId);
-                    product.setStock(newStock);
+                Product product = findProduct(branch, productId);
+                product.setStock(newStock);
 
-                    return franchiseRepository.save(franchise)
-                            .thenReturn(product);
-                });
+                return franchiseRepository.save(franchise)
+                    .thenReturn(product);
+            }
+        );
     }
 
     @Override
-    public Mono<Product> updateProductName(String franchiseId, String branchId,
-                                           String productId, String newName) {
+    public Mono<Product> updateProductName(String franchiseId, String branchId, String productId, String newName) {
         return franchiseRepository.findById(franchiseId)
-                .switchIfEmpty(Mono.error(
-                        new RuntimeException("Franchise not found: " + franchiseId)))
-                .flatMap(franchise -> {
-                    Branch branch = findBranch(franchise.getBranches()
-                            .stream()
-                            .filter(b -> b.getId().equals(branchId))
-                            .findFirst(), branchId);
+            .switchIfEmpty(Mono.error(
+                new RuntimeException("Franchise not found: " + franchiseId)))
+            .flatMap(franchise -> {
+                Branch branch = findBranch(franchise.getBranches()
+                    .stream()
+                    .filter(b -> b.getId().equals(branchId))
+                    .findFirst(), branchId);
 
-                    Product product = findProduct(branch, productId);
-                    product.setName(newName);
+                Product product = findProduct(branch, productId);
+                product.setName(newName);
 
-                    return franchiseRepository.save(franchise)
-                            .thenReturn(product);
-                });
+                return franchiseRepository.save(franchise)
+                    .thenReturn(product);
+            }
+        );
     }
 
     private Branch findBranch(java.util.Optional<Branch> optional, String branchId) {
-        return optional.orElseThrow(() ->
-                new RuntimeException("Branch not found: " + branchId));
+        return optional.orElseThrow(() -> new RuntimeException("Branch not found: " + branchId));
     }
 
     private Product findProduct(Branch branch, String productId) {
         return branch.getProducts().stream()
-                .filter(p -> p.getId().equals(productId))
-                .findFirst()
-                .orElseThrow(() ->
-                        new RuntimeException("Product not found: " + productId));
+            .filter(p -> p.getId().equals(productId))
+            .findFirst()
+            .orElseThrow(() -> new RuntimeException("Product not found: " + productId));
     }
 }
