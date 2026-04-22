@@ -1,0 +1,9 @@
+# Copiar este archivo como terraform.tfvars y completar los valores reales
+
+mongodb_atlas_public_key  = "your-public-key"
+mongodb_atlas_private_key = "your-private-key"
+atlas_org_id              = "your-org-id"
+project_name              = "franchise-api"
+atlas_region              = "US_EAST_1"
+db_username               = "franchise_user"
+db_password               = "your-secure-password"

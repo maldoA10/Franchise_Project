@@ -37,3 +37,11 @@ application.properties
 
 ### Application.yml ###
 application.yml
+
+# Terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfvars
+terraform/*.tfstate
+terraform/*.tfstate.backup
+terraform/crash.log

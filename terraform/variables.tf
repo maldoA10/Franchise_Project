@@ -21,6 +21,12 @@ variable "project_name" {
   default     = "franchise-api"
 }
 
+variable "atlas_region" {
+  description = "AWS region for MongoDB Atlas cluster"
+  type        = string
+  default     = "US_EAST_1"
+}
+
 variable "db_username" {
   description = "Database username"
   type        = string
