@@ -368,6 +368,10 @@
       "value": "http://localhost:8080"
     },
     {
+      "key": "deployUrl",
+      "value": ""
+    },
+    {
       "key": "franchiseId",
       "value": ""
     },
@@ -377,10 +381,6 @@
     },
     {
       "key": "productId",
-      "value": ""
-    },
-    {
-      "key": "productid",
       "value": ""
     }
   ]

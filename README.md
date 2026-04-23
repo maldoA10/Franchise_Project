@@ -182,6 +182,22 @@ Al usar Atlas puedes eliminar el servicio `mongodb` y el volumen `mongo-data` de
 
 ---
 
+## Despliegue en la Nube
+
+La aplicación está desplegada en **Railway** con la base de datos en **MongoDB Atlas**.
+
+URL pública: `https://franchiseproject-production.up.railway.app`
+
+> Para probar los endpoints usa la colección de Postman incluida en [`docs/franchise-api.postman_collection.json`](docs/franchise-api.postman_collection.json).
+>
+> La colección incluye dos variables:
+> - `baseUrl` -> `http://localhost:8080` (entorno local)
+> - `deployUrl` -> `https://franchiseproject-production.up.railway.app` (entorno Railway)
+>
+> Cambia la variable activa según el entorno que quieras probar.
+
+---
+
 ## Infraestructura con Terraform
 
 Provisiona un cluster de MongoDB Atlas (free tier M0) automáticamente.
