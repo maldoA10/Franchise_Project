@@ -4,6 +4,7 @@ import com.accenture.franchise.domain.port.in.BranchUseCase;
 import com.accenture.franchise.infrastructure.adapter.in.web.dto.UpdateNameRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import jakarta.validation.Validator;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -13,13 +14,20 @@ import reactor.core.publisher.Mono;
 public class BranchHandler {
 
     private final BranchUseCase branchUseCase;
+    private final Validator validator;
 
     public Mono<ServerResponse> updateBranchName(ServerRequest request) {
         String franchiseId = request.pathVariable("franchiseId");
         String branchId = request.pathVariable("branchId");
         return request.bodyToMono(UpdateNameRequest.class)
-            .flatMap(dto -> branchUseCase
-                .updateBranchName(franchiseId, branchId, dto.getName()))
+            .flatMap(dto -> {
+                var violations = validator.validate(dto);
+                if (!violations.isEmpty()) {
+                    String message = violations.iterator().next().getMessage();
+                    return Mono.error(new IllegalArgumentException(message));
+                }
+                return branchUseCase.updateBranchName(franchiseId, branchId, dto.getName());
+            })
             .flatMap(updated -> ServerResponse.ok().bodyValue(updated));
     }
 }

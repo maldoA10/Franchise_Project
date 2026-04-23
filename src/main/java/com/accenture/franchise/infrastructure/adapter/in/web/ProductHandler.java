@@ -8,6 +8,7 @@ import com.accenture.franchise.infrastructure.adapter.in.web.dto.UpdateStockRequ
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
+import jakarta.validation.Validator;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -17,12 +18,18 @@ import reactor.core.publisher.Mono;
 public class ProductHandler {
 
     private final ProductUseCase productUseCase;
+    private final Validator validator;
 
     public Mono<ServerResponse> addProduct(ServerRequest request) {
         String franchiseId = request.pathVariable("franchiseId");
         String branchId = request.pathVariable("branchId");
         return request.bodyToMono(ProductRequest.class)
             .flatMap(dto -> {
+                var violations = validator.validate(dto);
+                if (!violations.isEmpty()) {
+                    String message = violations.iterator().next().getMessage();
+                    return Mono.error(new IllegalArgumentException(message));
+                }
                 Product product = Product.builder()
                     .name(dto.getName())
                     .stock(dto.getStock())
@@ -48,8 +55,14 @@ public class ProductHandler {
         String branchId = request.pathVariable("branchId");
         String productId = request.pathVariable("productId");
         return request.bodyToMono(UpdateStockRequest.class)
-            .flatMap(dto -> productUseCase
-                .updateProductStock(franchiseId, branchId, productId, dto.getStock()))
+            .flatMap(dto -> {
+                var violations = validator.validate(dto);
+                if (!violations.isEmpty()) {
+                    String message = violations.iterator().next().getMessage();
+                    return Mono.error(new IllegalArgumentException(message));
+                }
+                return productUseCase.updateProductStock(franchiseId, branchId, productId, dto.getStock());
+            })
             .flatMap(updated -> ServerResponse.ok().bodyValue(updated));
     }
 
@@ -58,8 +71,14 @@ public class ProductHandler {
         String branchId = request.pathVariable("branchId");
         String productId = request.pathVariable("productId");
         return request.bodyToMono(UpdateNameRequest.class)
-            .flatMap(dto -> productUseCase
-                .updateProductName(franchiseId, branchId, productId, dto.getName()))
+            .flatMap(dto -> {
+                var violations = validator.validate(dto);
+                if (!violations.isEmpty()) {
+                    String message = violations.iterator().next().getMessage();
+                    return Mono.error(new IllegalArgumentException(message));
+                }
+                return productUseCase.updateProductName(franchiseId, branchId, productId, dto.getName());
+            })
             .flatMap(updated -> ServerResponse.ok().bodyValue(updated));
     }
 }
